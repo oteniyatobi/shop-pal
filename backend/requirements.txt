@@ -1,0 +1,6 @@
+flask>=3.0
+flask-cors>=4.0
+gunicorn>=22.0
+httpx>=0.27
+openai>=1.50  # used as the client for Gemini's OpenAI-compatible endpoint
+python-dotenv>=1.0

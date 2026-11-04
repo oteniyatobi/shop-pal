@@ -1,0 +1,27 @@
+# Render Blueprint: deploys ShopPal as ONE web service.
+# The build compiles the React app into frontend/dist, and Flask serves it
+# alongside the /api routes, so there's no CORS setup or second service needed.
+services:
+  - type: web
+    name: shoppal
+    runtime: python
+    plan: free
+    buildCommand: cd frontend && npm install && npm run build && cd ../backend && pip install -r requirements.txt
+    # Keep ONE worker: carts and chats live in memory, so a second process wouldn't see them.
+    # Threads let that worker handle several requests at once.
+    startCommand: cd backend && gunicorn app.main:app --bind 0.0.0.0:$PORT --workers 1 --threads 8 --timeout 120
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash-lite
+      - key: PAYPAL_BASE_URL
+        value: https://api-m.sandbox.paypal.com
+      # Secrets: you'll be prompted to enter these in the Render dashboard.
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
